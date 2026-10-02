@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Functions in Action | Practice Activity</title>
+<style>
+  :root {
+    --ink: #1b1d2a;
+    --ink-2: #41455a;
+    --muted: #6b6f84;
+    --line: #e2e0dc;
+    --paper: #ffffff;
+    --teal: #134f5c;
+    --teal-2: #1d7180;
+    --plum: #741b47;
+    --vermilion: #e4472b;
+    --saffron: #e8a100;
+    --good: #12805c;
+    --good-tint: #dcf5ea;
+    --bad: #c2381e;
+    --bad-tint: #ffe4dc;
+    --wait: #8a5a00;
+    --wait-tint: #fff1cc;
+    --r-lg: 22px;
+    --r-md: 16px;
+    --r-sm: 11px;
+    --shadow: 0 1px 2px rgba(27,29,42,.06), 0 10px 28px rgba(27,29,42,.09);
+    --shadow-hi: 0 2px 6px rgba(27,29,42,.1), 0 18px 36px rgba(27,29,42,.16);
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink);
+    background-color: #e7f3ef;
+    background-image:
+      radial-gradient(50rem 34rem at 108% -6%, rgba(232,161,0,.55), transparent 62%),
+      radial-gradient(44rem 30rem at -10% 18%, rgba(19,79,92,.32), transparent 60%),
+      radial-gradient(46rem 32rem at 105% 70%, rgba(228,71,43,.30), transparent 62%),
+      radial-gradient(40rem 30rem at -8% 104%, rgba(116,27,71,.30), transparent 60%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .26;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .62 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap { position: relative; z-index: 1; max-width: 1140px; margin: 0 auto; padding: 18px 16px 44px; }
+  h1, h2, h3, h4 { margin: 0; line-height: 1.2; }
+  p { margin: 0; }
+  h2:focus, h1:focus, h3:focus { outline: none; }
+  .serif { font-family: var(--serif); }
+
+  /* Header */
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .uni { font-weight: 800; font-size: 15px; letter-spacing: .01em; }
+  .uni small { display: block; font-weight: 600; font-size: 12.5px; color: var(--ink-2); }
+  .pa-chip { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px 7px 8px; border-radius: 999px; background: #fff; box-shadow: var(--shadow); font-weight: 800; font-size: 13px; color: var(--teal); }
+  .pa-chip i { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--teal); color: #fff; font-style: normal; }
+  .pa-chip svg { width: 13px; height: 13px; }
+
+  /* Progress rail */
+  .rail { display: flex; gap: 8px; background: rgba(255,255,255,.86); border-radius: 999px; padding: 6px; box-shadow: var(--shadow); margin-bottom: 18px; overflow-x: auto; scrollbar-width: none; }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail li { list-style: none; flex: 1 1 0; min-width: max-content; }
+  .rail ol { display: contents; }
+  .seg { display: flex; align-items: center; gap: 8px; justify-content: center; padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .seg b { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11.5px; background: #ecebe6; color: var(--muted); flex-shrink: 0; }
+  .seg b svg { width: 12px; height: 12px; }
+  li.done .seg { color: var(--teal); }
+  li.done .seg b { background: var(--good-tint); color: var(--good); }
+  li.now .seg { background: var(--teal); color: #fff; }
+  li.now .seg b { background: #fff; color: var(--teal); }
+  .rail-status { font-weight: 800; }
+
+  /* Bands */
+  .band { position: relative; overflow: hidden; border-radius: var(--r-lg); color: #fff; box-shadow: var(--shadow); }
+  .band::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .4; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.05' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3C/svg%3E"); }
+  .band > * { position: relative; z-index: 1; }
+  .band-sunset { background: radial-gradient(28rem 20rem at 92% 0%, rgba(255,196,40,.95), transparent 62%), linear-gradient(118deg, #741b47 0%, #a52a3d 38%, #e4472b 72%, #f08a1c 100%); }
+  .band-teal { background: radial-gradient(26rem 18rem at 95% 10%, rgba(232,161,0,.55), transparent 60%), linear-gradient(120deg, #0f3f4a 0%, #134f5c 45%, #1d7c8b 100%); }
+  .hero { padding: 34px 32px 30px; }
+  .eyebrow { font-size: 12.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .92; }
+  .hero h1 { font-family: var(--serif); font-size: clamp(32px, 5vw, 50px); font-weight: 700; margin: 8px 0 6px; letter-spacing: -.01em; }
+  .hero .sub { font-size: 18px; font-weight: 700; opacity: .96; margin-bottom: 10px; }
+  .hero p.lead { max-width: 660px; font-size: 16.5px; opacity: .95; }
+
+  .panel { background: var(--paper); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 24px; }
+  .label { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+
+  /* Intro */
+  .intro-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; margin-top: 16px; }
+  .company-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .wordmark { font-family: var(--serif); font-size: 30px; font-weight: 700; color: var(--teal); letter-spacing: -.01em; }
+  .company-meta { font-size: 13px; color: var(--muted); }
+  .company p { color: var(--ink-2); }
+  .role { margin-top: 14px; padding: 14px 16px; border-radius: var(--r-md); background: linear-gradient(120deg, #fff1cc, #ffe4dc); font-size: 15px; }
+  .role b { color: var(--plum); }
+  .elements { display: grid; gap: 10px; }
+  .el { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; padding: 12px; border-radius: var(--r-md); border: 1.5px solid var(--line); }
+  .el .eic { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; color: #fff; }
+  .el .eic svg { width: 22px; height: 22px; }
+  .el h3 { font-size: 15px; margin-bottom: 2px; }
+  .el p { font-size: 13.5px; color: var(--ink-2); }
+  .fn-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+  .fn-token { border-radius: var(--r-sm); padding: 12px 6px; text-align: center; font-size: 12.5px; font-weight: 800; overflow-wrap: anywhere; }
+  .fn-token .ti { width: 34px; height: 34px; margin: 0 auto 6px; border-radius: 10px; display: grid; place-items: center; color: #fff; }
+  .fn-token .ti svg { width: 19px; height: 19px; }
+  .qlist { counter-reset: q; display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .qlist li { counter-increment: q; display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; font-size: 14.5px; }
+  .qlist li::before { content: counter(q); width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: var(--teal); color: #fff; font-weight: 800; font-size: 13px; }
+  .how-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+  .how-card { border-radius: var(--r-md); padding: 14px 16px; background: #f6f5f1; }
+  .how-card .n { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--vermilion); line-height: 1; }
+  .how-card h3 { font-size: 15px; margin: 6px 0 2px; }
+  .how-card p { font-size: 13.5px; color: var(--ink-2); }
+
+  /* Buttons */
+  .btn { appearance: none; border: 0; font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 13px 22px; border-radius: 14px; transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+  .btn svg { width: 18px; height: 18px; }
+  .btn-go { background: var(--vermilion); color: #fff; box-shadow: 0 8px 18px rgba(228,71,43,.32); }
+  .btn-go:hover:not(:disabled) { transform: translateY(-1px); background: #cf3a1f; }
+  .btn-go:disabled { background: #c9c7c1; box-shadow: none; cursor: not-allowed; color: #fff; }
+  .btn-teal { background: var(--teal); color: #fff; box-shadow: 0 8px 18px rgba(19,79,92,.28); }
+  .btn-teal:hover { transform: translateY(-1px); background: #0f414c; }
+  .btn-line { background: #fff; color: var(--teal); border: 2px solid var(--teal); }
+  .btn-line:hover { background: #eef6f6; }
+  :focus-visible { outline: 3px solid var(--saffron); outline-offset: 3px; }
+  .bar-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .hint { font-size: 13.5px; color: var(--muted); }
+
+  /* Case layout */
+  .case-grid { display: grid; grid-template-columns: 330px minmax(0,1fr); gap: 16px; align-items: start; }
+  .case-file { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 14px; }
+  .case-band { padding: 22px; }
+  .case-band .tag { display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; background: rgba(255,255,255,.18); padding: 4px 10px; border-radius: 999px; }
+  .case-band h2 { font-family: var(--serif); font-size: 27px; font-weight: 700; margin: 10px 0 0; }
+  .objective { background: #fff; color: var(--ink); border-radius: var(--r-md); padding: 14px; margin-top: 16px; display: grid; grid-template-columns: 34px 1fr; gap: 10px; }
+  .objective .oi { width: 34px; height: 34px; border-radius: 10px; background: var(--saffron); color: #fff; display: grid; place-items: center; }
+  .objective .oi svg { width: 18px; height: 18px; }
+  .objective small { display: block; font-size: 11.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+  .objective b { font-size: 15px; }
+  .situation { font-size: 15px; color: var(--ink-2); }
+  .phases { display: flex; gap: 6px; }
+  .phase { flex: 1; text-align: center; font-size: 12px; font-weight: 800; padding: 7px 4px; border-radius: 9px; background: #f1efea; color: var(--muted); }
+  .phase.on { background: var(--plum); color: #fff; }
+  .phase.ok { background: var(--good-tint); color: var(--good); }
+  .mini-q { margin: 0; padding-left: 18px; font-size: 13.5px; color: var(--ink-2); display: grid; gap: 4px; }
+
+  /* Function update cards */
+  .board-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .board-head h3 { font-size: 18px; }
+  .count { font-size: 13px; font-weight: 800; color: var(--plum); background: #f6e1ea; padding: 4px 10px; border-radius: 999px; }
+  .board { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  .upd { border-radius: var(--r-md); background: #fff; border: 1.5px solid var(--line); overflow: hidden; transition: box-shadow .15s ease, border-color .15s ease; }
+  .upd-btn { appearance: none; border: 0; font: inherit; color: inherit; width: 100%; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--tint); }
+  .upd-btn:hover { filter: saturate(1.15); }
+  .upd .fi { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; color: #fff; flex-shrink: 0; }
+  .upd .fi svg { width: 22px; height: 22px; }
+  .upd .fname { font-weight: 800; font-size: 15.5px; color: var(--dark); }
+  .upd .fstate { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+  .upd .chev { margin-left: auto; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: var(--dark); flex-shrink: 0; transition: transform .2s ease; }
+  .upd .chev svg { width: 16px; height: 16px; }
+  .upd[data-open="true"] .chev { transform: rotate(180deg); }
+  .upd[data-open="true"] { border-color: var(--c); box-shadow: var(--shadow); }
+  .upd-body { padding: 14px; display: none; }
+  .upd[data-open="true"] .upd-body { display: block; }
+  .upd-body p { font-size: 14.5px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .kv { font-size: 12px; border-radius: 8px; padding: 4px 8px; background: #f4f3ef; color: var(--ink-2); }
+  .kv b { color: var(--ink); }
+  .seen { display: none; font-size: 11.5px; font-weight: 800; color: var(--good); background: var(--good-tint); padding: 2px 8px; border-radius: 999px; margin-left: 6px; }
+  .upd[data-seen="true"] .seen { display: inline-block; }
+
+  /* Diagnosis */
+  .qtitle { font-family: var(--serif); font-size: 23px; font-weight: 700; margin-bottom: 4px; }
+  .qsub { font-size: 14px; color: var(--muted); margin-bottom: 14px; }
+  .lockmsg { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--r-sm); background: #f6e1ea; color: var(--plum); font-weight: 700; font-size: 14px; margin-bottom: 12px; }
+  .lockmsg svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .choices { display: grid; gap: 12px; }
+  .choices.disabled { opacity: .5; pointer-events: none; }
+  .ch { appearance: none; font: inherit; color: inherit; text-align: left; cursor: pointer; width: 100%; display: grid; grid-template-columns: 64px 1fr; border: 2px solid var(--line); border-radius: var(--r-md); background: #fff; overflow: hidden; position: relative; padding: 0; transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+  .ch:hover:not(:disabled) { border-color: #9cc3c9; box-shadow: var(--shadow-hi); transform: translateY(-2px); }
+  .ch .stub { display: grid; place-items: center; background: #f4f3ef; border-right: 2px dashed var(--line); font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--teal); }
+  .ch .cbody { padding: 14px 16px; }
+  .ch h4 { font-size: 16.5px; margin-bottom: 3px; padding-right: 30px; }
+  .ch p { font-size: 14.5px; color: var(--ink-2); }
+  .ch .tick { position: absolute; top: 14px; right: 14px; width: 22px; height: 22px; border-radius: 6px; border: 2px solid #c9c7c1; display: grid; place-items: center; color: #fff; }
+  .ch .tick svg { width: 14px; height: 14px; opacity: 0; }
+  .ch[aria-checked="true"] { border-color: var(--teal); box-shadow: 0 0 0 4px rgba(19,79,92,.14); }
+  .ch[aria-checked="true"] .stub { background: var(--teal); color: #fff; border-right-color: var(--teal); }
+  .ch[aria-checked="true"] .tick { background: var(--teal); border-color: var(--teal); }
+  .ch[aria-checked="true"] .tick svg { opacity: 1; }
+  .steps-list { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+  .steps-list li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; font-size: 14px; color: var(--ink-2); align-items: start; }
+  .steps-list .sn { width: 22px; height: 22px; border-radius: 7px; background: #f1efea; display: grid; place-items: center; font-size: 11.5px; font-weight: 800; color: var(--ink); }
+  .fchip { display: inline-block; font-size: 11.5px; font-weight: 800; padding: 1px 7px; border-radius: 6px; color: #fff; margin-right: 4px; vertical-align: 1px; }
+  .choices.locked .ch { cursor: default; }
+  .choices.locked .ch:not(.picked) { opacity: .55; }
+  .choices.locked .ch.right { opacity: 1; border-color: var(--good); }
+  .choices.locked .ch.right .stub { background: var(--good); color: #fff; border-right-color: var(--good); }
+  .choices.locked .ch.picked:not(.right) { border-color: var(--bad); box-shadow: none; }
+  .choices.locked .ch.picked:not(.right) .stub { background: var(--bad); color: #fff; border-right-color: var(--bad); }
+  .choices.locked .ch.picked:not(.right) .tick { background: var(--bad); border-color: var(--bad); }
+  .flag { display: none; position: absolute; top: -1px; right: 46px; font-size: 11px; font-weight: 800; letter-spacing: .04em; padding: 3px 9px; border-radius: 0 0 8px 8px; color: #fff; }
+  .choices.locked .ch.right .flag { display: block; background: var(--good); }
+  .choices.locked .ch.picked:not(.right) .flag { display: block; background: var(--bad); }
+
+  /* Debrief */
+  .debrief { animation: rise .35s ease; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .verdict { padding: 20px 24px; display: grid; grid-template-columns: 52px 1fr; gap: 14px; align-items: center; }
+  .verdict .vi { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; background: rgba(255,255,255,.22); }
+  .verdict .vi svg { width: 28px; height: 28px; }
+  .verdict small { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .92; }
+  .verdict h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; margin-top: 2px; }
+  .v-good { background: linear-gradient(120deg, #0d6b4c, #12805c 50%, #1ba373); }
+  .v-bad { background: linear-gradient(120deg, #a52a3d, #c2381e 50%, #e4472b); }
+  .explain { font-size: 15.5px; }
+  .better { margin-top: 12px; font-size: 14.5px; background: var(--good-tint); border-radius: var(--r-sm); padding: 12px 14px; }
+  .better b { color: #0b6b4b; }
+
+  .trio { display: grid; grid-template-columns: 1fr 34px 1fr 34px 1fr; align-items: stretch; }
+  .trio .tb { border-radius: var(--r-md); padding: 16px; }
+  .trio .tb .th { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+  .trio .tb .th span { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; color: #fff; }
+  .trio .tb .th svg { width: 16px; height: 16px; }
+  .trio .tb p { font-size: 14.5px; }
+  .trio .joint { display: grid; place-items: center; color: var(--muted); }
+  .trio .joint svg { width: 20px; height: 20px; }
+  .tb-input { background: #dcefef; } .tb-input .th { color: var(--teal); } .tb-input .th span { background: var(--teal); }
+  .tb-hand { background: #fff1cc; } .tb-hand .th { color: var(--wait); } .tb-hand .th span { background: var(--saffron); }
+  .tb-impact { background: var(--bad-tint); } .tb-impact .th { color: var(--bad); } .tb-impact .th span { background: var(--vermilion); }
+  .tb-dep { background: #f6e1ea; } .tb-dep .th { color: var(--plum); } .tb-dep .th span { background: var(--plum); }
+  .tb-conn { background: #dcefef; } .tb-conn .th { color: var(--teal); } .tb-conn .th span { background: var(--teal); }
+  .tb-effect { background: #fff1cc; } .tb-effect .th { color: var(--wait); } .tb-effect .th span { background: var(--saffron); }
+  .conn-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .conn-chips .fchip { font-size: 12px; padding: 3px 8px; margin: 0; }
+
+  /* Function map */
+  .map-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .map-head h3 { font-size: 18px; }
+  .tabs { display: inline-flex; background: #f1efea; border-radius: 12px; padding: 4px; gap: 4px; }
+  .tab { appearance: none; border: 0; font: inherit; font-size: 13.5px; font-weight: 800; padding: 7px 14px; border-radius: 9px; background: transparent; color: var(--ink-2); cursor: pointer; }
+  .tab[aria-selected="true"] { background: #fff; color: var(--teal); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+  .map-shell { border-radius: var(--r-md); background: #fbfaf7; background-image: radial-gradient(#dcd9d1 1px, transparent 1px); background-size: 18px 18px; padding: 10px; }
+  .map { position: relative; padding: 18px 6px; }
+  .map svg.lines { position: absolute; left: 0; top: 0; z-index: 0; overflow: visible; pointer-events: none; }
+  .map-stages { position: relative; z-index: 1; display: flex; flex-direction: row; justify-content: space-between; align-items: center; gap: 64px; }
+  .map-stage { flex: 1 1 0; max-width: 190px; min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+  .map.vertical .map-stages { flex-direction: column; align-items: stretch; gap: 60px; }
+  .map.vertical .map-stage { flex-direction: row; justify-content: center; max-width: none; gap: 14px; }
+  .map.vertical .mnode { flex: 0 1 180px; }
+  .mnode { background: #fff; border-radius: 14px; border: 2px solid var(--c); padding: 10px 12px; box-shadow: 0 4px 12px rgba(27,29,42,.08); }
+  .mnode .mt { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: var(--dark); min-width: 0; overflow-wrap: anywhere; }
+  .mnode .mt span { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--c); color: #fff; flex-shrink: 0; }
+  .mnode .mt svg { width: 16px; height: 16px; }
+  .mnode .ms { display: inline-block; margin-top: 6px; font-size: 11.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; }
+  .ms.s-ok { background: var(--good-tint); color: var(--good); }
+  .ms.s-bad { background: var(--bad-tint); color: var(--bad); }
+  .ms.s-wait { background: var(--wait-tint); color: var(--wait); }
+  .mnode.hot { box-shadow: 0 0 0 5px rgba(228,71,43,.18), 0 4px 12px rgba(27,29,42,.08); }
+  .badge { position: absolute; z-index: 2; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; color: #fff; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.18); }
+  .b-key, .b-ok { background: var(--good); }
+  .b-bad { background: var(--bad); }
+  .b-wait { background: var(--saffron); color: #3a2600; }
+  .b-aff { background: #8a5a00; }
+  .legend { display: grid; gap: 8px; margin-top: 12px; }
+  .lg { display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: center; font-size: 14px; padding: 9px 12px; background: #fff; border-radius: 11px; border: 1.5px solid var(--line); }
+  .lg .badge { position: static; margin: 0; }
+  .lg .st { font-size: 11.5px; font-weight: 800; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .st.key, .st.ok { background: var(--good-tint); color: var(--good); }
+  .st.bad { background: var(--bad-tint); color: var(--bad); }
+  .st.wait, .st.aff { background: var(--wait-tint); color: var(--wait); }
+  .lg-from { font-weight: 800; }
+
+  /* Results */
+  .skills { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+  .skill { background: #fff; border-radius: var(--r-lg); padding: 20px; box-shadow: var(--shadow); }
+  .skill .sk-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .skill .sk-ic { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; color: #fff; }
+  .skill .sk-ic svg { width: 22px; height: 22px; }
+  .skill h3 { font-size: 16px; }
+  .pips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .pip { height: 12px; border-radius: 999px; background: #ecebe6; }
+  .skill .lvl { display: flex; justify-content: space-between; margin-top: 10px; font-size: 13px; font-weight: 800; }
+  .skill .lvl span:last-child { color: var(--muted); font-weight: 700; }
+  .recap { display: grid; gap: 10px; }
+  .rc { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 12px 14px; border-radius: var(--r-sm); background: #f6f5f1; }
+  .rc .rn { font-family: var(--serif); font-size: 22px; font-weight: 700; color: var(--teal); width: 30px; text-align: center; }
+  .rc .rt { font-weight: 800; font-size: 14.5px; }
+  .rc .rt small { display: block; font-weight: 600; font-size: 13px; color: var(--ink-2); }
+  .rc .rs { font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .rs.y { background: var(--good-tint); color: var(--good); }
+  .rs.n { background: var(--bad-tint); color: var(--bad); }
+  .principles { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+  .pr { border-radius: var(--r-md); padding: 18px; color: #fff; position: relative; overflow: hidden; }
+  .pr .pn { font-family: var(--serif); font-size: 34px; font-weight: 700; line-height: 1; opacity: .9; margin-bottom: 10px; }
+  .pr p { font-size: 15px; font-weight: 700; }
+  .pr1 { background: linear-gradient(135deg, #134f5c, #1d7c8b); }
+  .pr2 { background: linear-gradient(135deg, #b8321a, #e4472b 60%, #f08a1c); }
+  .pr3 { background: linear-gradient(135deg, #5e1539, #741b47 60%, #a52a5d); }
+  .score-line { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; background: #fff; color: var(--plum); font-weight: 800; padding: 8px 14px; border-radius: 999px; font-size: 14px; }
+  .score-line svg { width: 16px; height: 16px; }
+
+  .foot { text-align: center; font-size: 12.5px; color: var(--ink-2); margin-top: 22px; }
+
+  @media (max-width: 960px) {
+    .case-grid { grid-template-columns: minmax(0,1fr); }
+    .case-file { position: static; }
+  }
+  @media (max-width: 760px) {
+    .intro-grid, .how-row, .skills, .principles, .board { grid-template-columns: minmax(0,1fr); }
+    .trio { grid-template-columns: minmax(0,1fr); gap: 0; }
+    .trio .joint { height: 30px; transform: rotate(90deg); }
+    .panel { padding: 18px; }
+    .hero { padding: 26px 20px; }
+    .rail li:not(.now) .seg span { display: none; }
+    .rail li { flex: 0 0 auto; }
+    .rail li.now { flex: 1 1 auto; }
+    .bar-actions .btn { width: 100%; }
+    .ch { grid-template-columns: 48px 1fr; }
+    .verdict { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="uni">Nexford University<small>BUS2125 The World of Business &middot; Section 3: Business Functions</small></div>
+    <span class="pa-chip"><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>Practice Activity</span>
+  </header>
+
+  <nav aria-label="Activity progress">
+    <ol class="rail" id="rail"></ol>
+  </nav>
+  <p class="sr-only" id="liveStatus" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"></p>
+
+  <main id="app"></main>
+
+  <p class="foot">Practice Activity &middot; Ungraded &middot; Nexford University</p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ================= Icons ================= */
+  var P = {
+    compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+    gear: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/>',
+    megaphone: '<path d="M3 10v4h3l7 4V6L6 10z"/><path d="M16.5 9a4 4 0 0 1 0 6"/><path d="M19 6.5a7.5 7.5 0 0 1 0 11"/>',
+    wallet: '<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 9.5h14"/><path d="M16 14h2.5"/><path d="M6 6l9-2.5 1 2.5"/>',
+    ledger: '<path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z"/><path d="M6 3v18"/><path d="M9.5 8h6"/><path d="M9.5 11.5h6"/><path d="M9.5 15h4"/>',
+    badge: '<rect x="4" y="6" width="16" height="14" rx="2.5"/><path d="M9.5 6V4h5v2"/><circle cx="12" cy="11.5" r="2.2"/><path d="M8.5 17c.6-1.6 2-2.5 3.5-2.5s2.9.9 3.5 2.5"/>',
+    server: '<rect x="4" y="3.5" width="16" height="7" rx="2"/><rect x="4" y="13.5" width="16" height="7" rx="2"/><path d="M8 7h.01"/><path d="M8 17h.01"/><path d="M12 7h4"/><path d="M12 17h4"/>',
+    flag: '<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
+    input: '<path d="M3 12h11"/><path d="M10 8l4 4-4 4"/><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4"/>',
+    handoff: '<path d="M4 8h12"/><path d="M13 5l3 3-3 3"/><path d="M20 16H8"/><path d="M11 13l-3 3 3 3"/>',
+    impact: '<path d="M12 3v4"/><path d="M12 17v4"/><path d="M3 12h4"/><path d="M17 12h4"/><circle cx="12" cy="12" r="3.5"/>',
+    lock: '<rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    chain: '<rect x="2.5" y="9" width="8" height="6" rx="3"/><rect x="13.5" y="9" width="8" height="6" rx="3"/><path d="M8.5 12h7"/>',
+    nodes: '<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8.5 6h7"/><path d="M7.2 8.2l3.6 7.6"/><path d="M16.8 8.2l-3.6 7.6"/>',
+    pulse: '<path d="M3 12h4l2-5 4 10 2-5h6"/>',
+    lens: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M8 10.5h5"/>',
+    route: '<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/>',
+    chevron: '<path d="M6 9l6 6 6-6"/>',
+    arrow: '<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    cross: '<path d="M6 6l12 12"/><path d="M18 6L6 18"/>',
+    replay: '<path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/>',
+    target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/>'
+  };
+  function ic(n) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + P[n] + '</svg>';
+  }
+
+  /* ================= Functions ================= */
+  var FN = {
+    mgmt: { name: "Management", icon: "compass", c: "#741b47", d: "#741b47", t: "#f6e1ea" },
+    ops:  { name: "Operations", icon: "gear", c: "#134f5c", d: "#134f5c", t: "#dcefef" },
+    mkt:  { name: "Marketing", icon: "megaphone", c: "#e4472b", d: "#b8321a", t: "#ffe4dc" },
+    fin:  { name: "Finance", icon: "wallet", c: "#e8a100", d: "#8a5a00", t: "#fff1cc" },
+    acc:  { name: "Accounting", icon: "ledger", c: "#6a9a00", d: "#456500", t: "#eef6d6" },
+    hr:   { name: "Human Resources", icon: "badge", c: "#2b59c3", d: "#1f428f", t: "#e1e9fb" },
+    it:   { name: "Information Technology", icon: "server", c: "#0a93b8", d: "#06637d", t: "#dcf3fa" }
+  };
+  var SHORT = { mgmt: "Management", ops: "Operations", mkt: "Marketing", fin: "Finance", acc: "Accounting", hr: "HR", it: "IT" };
+  function chip(id) { return '<span class="fchip" style="background:' + FN[id].c + (id === "fin" ? ';color:#2e1e00' : '') + '">' + SHORT[id] + '</span>'; }
+  function vars(id) { var f = FN[id]; return "--c:" + f.c + ";--d:" + f.d + ";--dark:" + f.d + ";--tint:" + f.t; }
+
+  /* ================= Cases ================= */
+  var CASES = [
+    {
+      title: "The Missing Handoff",
+      objective: "Ship every holiday order within three days.",
+      situation: "Nimbo's new Trail Mug was featured by a popular outdoor retailer's website in late August. It is now October, and the holiday rush starts in six weeks.",
+      updates: [
+        { fn: "mkt", state: "Demand update", msg: "In early September we confirmed that expected holiday orders for the Trail Mug are up about 40%. We added the new estimate to the shared sales tracker.", kv: [["Shared via", "Sales tracker"], ["Estimate date", "Sept 6"]] },
+        { fn: "ops", state: "Production plan", msg: "Holiday production is scheduled from the demand forecast we received in July: last year's volume plus 5%. We have not received an updated number.", kv: [["Working from", "July forecast"], ["Planned volume", "Last year + 5%"]] },
+        { fn: "hr", state: "Seasonal hiring", msg: "We are hiring 12 seasonal production workers, the number in Operations' staffing request. Start dates are set for November 1.", kv: [["Based on", "Operations request"], ["Seasonal hires", "12"]] },
+        { fn: "fin", state: "Materials budget", msg: "The holiday materials budget was approved in August using Operations' production plan. We can review it if the plan changes.", kv: [["Based on", "Production plan"], ["Approved", "Aug 20"]] }
+      ],
+      verdicts: ["You found where the connection broke.", "That was not where the breakdown started."],
+      question: "Where did the coordination break down?",
+      sub: "Each choice points to a real gap. Choose where the breakdown started.",
+      options: [
+        { title: "HR's seasonal hiring", text: "Seasonal hiring was set too low for the holiday rush, which will leave the production line short of workers.", correct: false,
+          fb: "HR hired exactly what Operations requested. The shortage started earlier, when the updated demand estimate did not reach Operations, so HR's plan was built on old information." },
+        { title: "The Marketing to Operations handoff", text: "The updated demand estimate never reached Operations in a usable form, so production planning stayed on old information.", correct: true,
+          fb: "Marketing had the right information, but posting it to a shared tracker without telling Operations made the handoff unclear and late. Operations kept planning from the July forecast, so staffing and materials were set for the old volume." },
+        { title: "Finance to Operations timing", text: "The materials budget was approved before the holiday estimate was final, which limits how much Operations can produce.", correct: false,
+          fb: "Finance approved the budget Operations requested. The budget was low because Operations' plan used the July forecast, so the breakdown happened earlier, between Marketing and Operations." }
+      ],
+      trio: {
+        kind: "handoff",
+        a: "Updated holiday demand estimate showing orders up about 40%.",
+        b: "Marketing to Operations. It was posted to a shared tracker but never sent directly, so it arrived unclear and late.",
+        c: "Production, staffing, and materials were all planned for last year's volume, setting up shortages and late orders."
+      },
+      maps: {
+        actual: {
+          stages: [["mkt"], ["ops"], ["hr", "fin"]],
+          nodes: { mkt: ["s-ok", "Had the update"], ops: ["s-bad", "Planned on old data"], hr: ["s-wait", "Affected"], fin: ["s-wait", "Affected"] },
+          hot: ["mkt", "ops"],
+          links: [
+            { from: "mkt", to: "ops", st: "bad", label: "Updated demand estimate (+40%)", note: "Breakdown" },
+            { from: "ops", to: "hr", st: "aff", label: "Staffing requirement based on old volume", note: "Affected" },
+            { from: "ops", to: "fin", st: "aff", label: "Materials plan based on old volume", note: "Affected" }
+          ]
+        }
+      },
+      score: function (i) { return this.options[i].correct ? { fid: 1, hand: 2, dep: 0 } : { fid: 0, hand: 0, dep: 0 }; }
+    },
+    {
+      title: "The Hidden Dependency",
+      objective: "Launch a second production shift by March 1.",
+      situation: "After the holiday shortages, Nimbo wants more production capacity before spring. Management has said it will approve a second shift once Finance confirms the funding is available.",
+      updates: [
+        { fn: "hr", state: "Recruitment", msg: "Job postings for 18 evening-shift workers are written. We can begin interviews within a week, once the shift is approved.", kv: [["Status", "Ready to post"], ["Waiting on", "Approval"]] },
+        { fn: "ops", state: "Capacity", msg: "The line can run a second shift. New workers must be hired and trained at least four weeks before March 1.", kv: [["Needs", "18 trained workers"], ["Latest training start", "Feb 1"]] },
+        { fn: "fin", state: "Funding", msg: "We can fund the shift once we confirm our January cash position. We are waiting for the completed December figures.", kv: [["Waiting on", "December figures"], ["Decision", "On hold"]] },
+        { fn: "acc", state: "Records", msg: "December transactions are still being recorded. Year-end bank reporting came first, so the records need about two more weeks.", kv: [["Records complete", "About 70%"], ["Expected", "2 weeks"]] }
+      ],
+      verdicts: ["You found what has to happen first.", "That step does not clear the dependency."],
+      question: "What must happen before the business can move forward effectively?",
+      sub: "Think about which function is waiting on which, and what comes first.",
+      options: [
+        { title: "Begin interviews now", text: "HR starts interviewing candidates this week so new workers are ready the moment the shift is approved.", correct: false,
+          fb: "HR is ready, but recruitment depends on Management approval and available financial resources. Interviewing before funding is confirmed risks making offers Nimbo cannot support." },
+        { title: "Approve the shift now", text: "Management approves the shift based on Operations' capacity plan, and Finance adjusts spending once the figures arrive.", correct: false,
+          fb: "Approving now skips the dependency on financial resources. Without confirmed funding, the shift could be approved and then delayed or cut back." },
+        { title: "Complete the December records first", text: "Accounting finishes recording December transactions so Finance can confirm funding and Management can approve the shift.", correct: true,
+          fb: "Finance cannot confirm funding until Accounting finishes the December records, and Management will not approve until Finance confirms. Completing those records is the step everything else is waiting on." }
+      ],
+      trio: {
+        kind: "dependency",
+        a: "Accounting completes the December records so Finance can confirm the funding.",
+        b: ["acc", "fin", "mgmt", "hr", "ops"],
+        c: "Delayed financial information slowed every decision after it, putting the March 1 shift at risk."
+      },
+      maps: {
+        actual: {
+          stages: [["acc"], ["fin"], ["mgmt"], ["hr"], ["ops"]],
+          nodes: { acc: ["s-bad", "Bottleneck"], fin: ["s-wait", "Waiting"], mgmt: ["s-wait", "Waiting"], hr: ["s-wait", "Ready, but blocked"], ops: ["s-wait", "Ready, but blocked"] },
+          hot: ["acc", "fin"],
+          links: [
+            { from: "acc", to: "fin", st: "bad", label: "Completed December records", note: "Delayed" },
+            { from: "fin", to: "mgmt", st: "wait", label: "Funding confirmation", note: "Waiting" },
+            { from: "mgmt", to: "hr", st: "wait", label: "Shift approval", note: "Waiting" },
+            { from: "hr", to: "ops", st: "wait", label: "Recruited employees", note: "Waiting" }
+          ]
+        }
+      },
+      score: function (i) { return this.options[i].correct ? { fid: 1, hand: 0, dep: 2 } : { fid: 0, hand: 0, dep: 0 }; }
+    },
+    {
+      title: "The Cross-Functional Response",
+      objective: "Deliver 50,000 units to 600 stores on time for launch in 10 weeks.",
+      situation: "Nimbo has signed its biggest deal yet: a national retail chain will stock Nimbo bottles in 600 stores. The first order is due in 10 weeks, and several functions must contribute.",
+      updates: [
+        { fn: "mkt", state: "Customer demand", msg: "The retailer shared expected sales for its 600 stores. We are turning it into a store-by-store demand estimate, ready in one week.", kv: [["Ready in", "1 week"], ["Detail", "Store by store"]] },
+        { fn: "ops", state: "Capacity", msg: "The current line can produce about 30,000 units in eight weeks. Anything above that needs more workers and materials.", kv: [["Current capacity", "30,000 units"], ["Gap", "20,000 units"]] },
+        { fn: "it", state: "Systems", msg: "The retailer sends orders through its own electronic ordering system. Connecting and testing it with our order system takes about four weeks.", kv: [["Setup time", "4 weeks"], ["Status", "Not started"]] },
+        { fn: "fin", state: "Funding", msg: "We can fund extra materials and staff, but we need the production plan to know how much to set aside.", kv: [["Waiting on", "Production plan"], ["Funds", "Available"]] }
+      ],
+      verdicts: ["This plan connects the right inputs and actions.", "This plan leaves an important gap."],
+      question: "Which response plan best supports the shared objective?",
+      sub: "All three plans involve several functions. Look at what each function needs and when it gets it.",
+      options: [
+        { title: "Linked handoffs", correct: true, partial: false,
+          steps: [
+            { f: ["mkt"], t: "Finish the store-by-store demand estimate and send it to Operations in week 1." },
+            { f: ["ops"], t: "Turn the estimate into a staffing requirement for HR and a materials plan for Finance." },
+            { f: ["fin", "mgmt"], t: "Finance confirms funding so Management can approve hiring and materials; HR then recruits." },
+            { f: ["it", "ops"], t: "IT connects and tests the ordering system with Operations by week 6." }
+          ],
+          fb: "Each function receives the input it needs before it acts. Demand information flows to Operations, Operations' requirements reach HR and Finance, approval follows funding, and the ordering system is tested well before launch." },
+        { title: "Fast start", correct: false, partial: false,
+          steps: [
+            { f: ["ops"], t: "Start producing at full capacity this week, using last season's volume as the target." },
+            { f: ["hr"], t: "Recruit 20 temporary production workers right away." },
+            { f: ["mkt"], t: "Work with the retailer on in-store product displays for the launch." },
+            { f: ["it"], t: "Connect the retailer's ordering system during launch week." }
+          ],
+          fb: "Operations moves quickly but starts without its most important input, the demand estimate, which can create shortages or excess capacity. Connecting the ordering system in launch week also risks a technology failure interrupting operations." },
+        { title: "Parallel planning", correct: false, partial: true,
+          steps: [
+            { f: ["mgmt"], t: "Set the launch as the top priority and give every function a week 6 deadline." },
+            { f: ["mkt", "ops", "hr", "fin"], t: "Each function prepares its own plan at the same time, starting now." },
+            { f: ["it"], t: "Connect and test the retailer's ordering system by week 6." },
+            { f: ["mgmt"], t: "Review all plans together at a week 6 meeting and resolve any gaps." }
+          ],
+          fb: "The right functions are involved, but they plan at the same time instead of in sequence. Operations, HR, and Finance prepare before receiving the inputs they depend on, and the handoffs only happen at week 6, too late to fix gaps." }
+      ],
+      maps: {
+        p0: {
+          stages: [["mkt", "it"], ["ops"], ["hr", "fin"], ["mgmt"]],
+          nodes: { mkt: ["s-ok", "Sends input"], it: ["s-ok", "Tested by week 6"], ops: ["s-ok", "Plans from demand"], hr: ["s-ok", "Recruits after approval"], fin: ["s-ok", "Confirms funding"], mgmt: ["s-ok", "Approves"] },
+          hot: [],
+          links: [
+            { from: "mkt", to: "ops", st: "key", label: "Store-by-store demand estimate (week 1)", note: "Key handoff" },
+            { from: "it", to: "ops", st: "ok", label: "Tested ordering system (week 6)", note: "On time" },
+            { from: "ops", to: "hr", st: "ok", label: "Staffing requirement", note: "On time" },
+            { from: "ops", to: "fin", st: "ok", label: "Materials plan", note: "On time" },
+            { from: "fin", to: "mgmt", st: "key", label: "Funding confirmation before approval", note: "Key dependency" }
+          ]
+        },
+        p1: {
+          stages: [["mkt", "it"], ["ops"], ["hr"]],
+          nodes: { mkt: ["s-wait", "Input not used"], it: ["s-bad", "Too late"], ops: ["s-bad", "Plans on old volume"], hr: ["s-wait", "Hires a guess"] },
+          hot: ["ops", "it"],
+          links: [
+            { from: "mkt", to: "ops", st: "bad", label: "Demand estimate never reaches Operations", note: "Breakdown" },
+            { from: "it", to: "ops", st: "bad", label: "Ordering system connected in launch week", note: "Breakdown" },
+            { from: "ops", to: "hr", st: "aff", label: "Hiring request based on last season", note: "Affected" }
+          ]
+        },
+        p2: {
+          stages: [["mkt", "it"], ["ops"], ["hr", "fin"], ["mgmt"]],
+          nodes: { mkt: ["s-wait", "Shares in week 6"], it: ["s-ok", "Tested by week 6"], ops: ["s-bad", "Plans without input"], hr: ["s-wait", "Plans without input"], fin: ["s-wait", "Plans without input"], mgmt: ["s-wait", "Approves late"] },
+          hot: ["mkt", "ops"],
+          links: [
+            { from: "mkt", to: "ops", st: "bad", label: "Demand estimate shared at week 6", note: "Too late" },
+            { from: "it", to: "ops", st: "ok", label: "Tested ordering system (week 6)", note: "On time" },
+            { from: "ops", to: "hr", st: "bad", label: "Staffing requirement shared at week 6", note: "Too late" },
+            { from: "ops", to: "fin", st: "bad", label: "Materials plan shared at week 6", note: "Too late" },
+            { from: "fin", to: "mgmt", st: "wait", label: "Funding confirmation at week 6", note: "Delayed" }
+          ]
+        }
+      },
+      score: function (i) {
+        var o = this.options[i];
+        if (o.correct) return { fid: 1, hand: 1, dep: 1 };
+        if (o.partial) return { fid: 1, hand: 0, dep: 0 };
+        return { fid: 0, hand: 0, dep: 0 };
+      }
+    }
+  ];
+
+  /* ================= State ================= */
+  var S;
+  function reset() {
+    S = { view: 0, opened: {}, selected: null, locked: false, answers: [null, null, null], skills: { fid: 0, hand: 0, dep: 0 } };
+  }
+  var app = document.getElementById("app");
+  var observers = [];
+  var mapUid = 0;
+
+  function announce(t) { document.getElementById("liveStatus").textContent = t; }
+
+  /* ================= Progress rail ================= */
+  function renderRail() {
+    var items = [["Brief", ""], ["Case 1 of 3", "1"], ["Case 2 of 3", "2"], ["Case 3 of 3", "3"], ["Analysis", ""]];
+    var html = "";
+    items.forEach(function (it, i) {
+      var cls = i < S.view ? "done" : (i === S.view ? "now" : "");
+      var mark = i < S.view ? ic("check") : (it[1] || ic(i === 0 ? "flag" : "target"));
+      html += '<li class="' + cls + '"' + (i === S.view ? ' aria-current="step"' : '') + '><div class="seg"><b>' + mark + '</b><span>' + it[0] + '</span></div></li>';
+    });
+    document.getElementById("rail").innerHTML = html;
+  }
+
+  /* ================= Function map ================= */
+  function buildMap(host, spec) {
+    var uid = ++mapUid;
+    var stagesHTML = spec.stages.map(function (st) {
+      return '<div class="map-stage">' + st.map(function (id) {
+        var n = spec.nodes[id] || ["s-ok", ""];
+        var hot = spec.hot && spec.hot.indexOf(id) > -1 ? " hot" : "";
+        return '<div class="mnode' + hot + '" data-node="' + id + '" style="' + vars(id) + '"><div class="mt"><span>' + ic(FN[id].icon) + '</span>' + SHORT[id] + '</div>' +
+          (n[1] ? '<span class="ms ' + n[0] + '">' + n[1] + '</span>' : '') + '</div>';
+      }).join("") + '</div>';
+    }).join("");
+
+    var legend = spec.links.map(function (l, i) {
+      var cls = { key: "key", ok: "ok", bad: "bad", wait: "wait", aff: "aff" }[l.st];
+      var bcls = { key: "b-key", ok: "b-ok", bad: "b-bad", wait: "b-wait", aff: "b-aff" }[l.st];
+      return '<div class="lg"><span class="badge ' + bcls + '">' + (i + 1) + '</span><span><span class="lg-from">' + SHORT[l.from] + ' to ' + SHORT[l.to] + ':</span> ' + l.label + '</span><span class="st ' + cls + '">' + l.note + '</span></div>';
+    }).join("");
+
+    host.innerHTML =
+      '<div class="map-shell"><div class="map" id="map' + uid + '" role="img" aria-label="Function map showing how work moves between functions. Details are listed below the map.">' +
+        '<svg class="lines" aria-hidden="true"></svg>' +
+        '<div class="map-stages">' + stagesHTML + '</div>' +
+      '</div></div>' +
+      '<div class="legend">' + legend + '</div>';
+
+    var mapEl = host.querySelector(".map");
+    var m = { el: mapEl, spec: spec, uid: uid };
+    function draw() { drawMap(m); }
+    if (window.requestAnimationFrame) window.requestAnimationFrame(draw); else draw();
+    if (typeof ResizeObserver !== "undefined") {
+      var ro = new ResizeObserver(function () { draw(); });
+      ro.observe(mapEl);
+      observers.push(ro);
+    } else {
+      window.addEventListener("resize", draw);
+    }
+  }
+
+  var COLORS = { key: "#12805c", ok: "#12805c", bad: "#c2381e", wait: "#e8a100", aff: "#8a5a00" };
+
+  function drawMap(m) {
+    var el = m.el;
+    if (!el || !el.isConnected) return;
+    var n = m.spec.stages.length;
+    var need = n * 168 + (n - 1) * 64 + 12;
+    var vertical = el.clientWidth < need;
+    if (el.classList.contains("vertical") !== vertical) el.classList.toggle("vertical", vertical);
+
+    var box = el.getBoundingClientRect();
+    var svg = el.querySelector("svg.lines");
+    var w = Math.max(1, Math.round(box.width)), h = Math.max(1, Math.round(box.height));
+    svg.setAttribute("width", w);
+    svg.setAttribute("height", h);
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+
+    var defs = "<defs>";
+    Object.keys(COLORS).forEach(function (k) {
+      defs += '<marker id="ah-' + k + '-' + m.uid + '" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="' + COLORS[k] + '"/></marker>';
+    });
+    defs += "</defs>";
+
+    var paths = "";
+    var old = el.querySelectorAll(".badge");
+    Array.prototype.forEach.call(old, function (b) { b.parentNode.removeChild(b); });
+
+    m.spec.links.forEach(function (l, i) {
+      var a = el.querySelector('[data-node="' + l.from + '"]');
+      var b = el.querySelector('[data-node="' + l.to + '"]');
+      if (!a || !b) return;
+      var ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+      var x1, y1, x2, y2, d;
+      if (!vertical) {
+        x1 = ra.right - box.left; y1 = ra.top + ra.height / 2 - box.top;
+        x2 = rb.left - box.left - 2; y2 = rb.top + rb.height / 2 - box.top;
+        var dx = Math.max(24, (x2 - x1) / 2);
+        d = "M" + x1 + " " + y1 + " C" + (x1 + dx) + " " + y1 + " " + (x2 - dx) + " " + y2 + " " + x2 + " " + y2;
+      } else {
+        x1 = ra.left + ra.width / 2 - box.left; y1 = ra.bottom - box.top;
+        x2 = rb.left + rb.width / 2 - box.left; y2 = rb.top - box.top - 2;
+        var dy = Math.max(20, (y2 - y1) / 2);
+        d = "M" + x1 + " " + y1 + " C" + x1 + " " + (y1 + dy) + " " + x2 + " " + (y2 - dy) + " " + x2 + " " + y2;
+      }
+      var col = COLORS[l.st];
+      var dash = l.st === "bad" ? ' stroke-dasharray="7 6"' : (l.st === "wait" || l.st === "aff" ? ' stroke-dasharray="2 6"' : "");
+      var width = (l.st === "key" || l.st === "bad") ? 3.4 : 2.4;
+      paths += '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="' + width + '" stroke-linecap="round"' + dash + ' marker-end="url(#ah-' + l.st + '-' + m.uid + ')"/>';
+
+      var badge = document.createElement("span");
+      badge.className = "badge " + { key: "b-key", ok: "b-ok", bad: "b-bad", wait: "b-wait", aff: "b-aff" }[l.st];
+      badge.textContent = String(i + 1);
+      badge.setAttribute("aria-hidden", "true");
+      badge.style.left = ((x1 + x2) / 2) + "px";
+      badge.style.top = ((y1 + y2) / 2) + "px";
+      el.appendChild(badge);
+    });
+    svg.innerHTML = defs + paths;
+  }
+
+  function clearObservers() {
+    observers.forEach(function (o) { try { o.disconnect(); } catch (e) {} });
+    observers = [];
+  }
+
+  /* ================= Intro ================= */
+  function renderIntro() {
+    var tokens = ["mgmt", "ops", "mkt", "fin", "acc", "hr", "it"].map(function (id) {
+      var f = FN[id];
+      return '<div class="fn-token" style="background:' + f.t + ';color:' + f.d + '"><div class="ti" style="background:' + f.c + '">' + ic(f.icon) + '</div>' + SHORT[id] + '</div>';
+    }).join("");
+
+    app.innerHTML =
+      '<section class="band band-sunset hero">' +
+        '<div class="eyebrow">Section 3 &middot; Business Functions</div>' +
+        '<h1 tabindex="-1" id="screenTitle">Functions in Action</h1>' +
+        '<div class="sub">Cross-Functional Breakdown Simulator</div>' +
+        '<p class="lead">Investigate three situations at one company, find where work or information stopped moving between functions, and choose how the business should respond.</p>' +
+      '</section>' +
+      '<div class="intro-grid">' +
+        '<section class="panel company">' +
+          '<div class="label">The company</div>' +
+          '<div class="company-head"><span class="wordmark">Nimbo</span><span class="company-meta">Minneapolis, Minnesota</span></div>' +
+          '<p>Nimbo designs, makes, and ships insulated water bottles and travel mugs, sold online and through retail partners. Some teams are small, but every one of the seven functions is at work in the business.</p>' +
+          '<div class="role"><b>Your role:</b> cross-functional analyst. When results slip, you look at how work moves between functions, not just at one team.</div>' +
+          '<div class="label" style="margin-top:18px">Seven functions at Nimbo</div>' +
+          '<div class="fn-strip">' + tokens + '</div>' +
+        '</section>' +
+        '<section class="panel">' +
+          '<div class="label">Your analysis toolkit</div>' +
+          '<div class="elements">' +
+            '<div class="el"><span class="eic" style="background:var(--teal)">' + ic("input") + '</span><div><h3>Input</h3><p>Information or resources a function needs before it can do its work.</p></div></div>' +
+            '<div class="el"><span class="eic" style="background:var(--saffron)">' + ic("handoff") + '</span><div><h3>Handoff</h3><p>Work, information, or responsibility moving from one function to another.</p></div></div>' +
+            '<div class="el"><span class="eic" style="background:var(--plum)">' + ic("chain") + '</span><div><h3>Dependency</h3><p>One function cannot act effectively until another provides an input or completes an action.</p></div></div>' +
+          '</div>' +
+        '</section>' +
+      '</div>' +
+      '<section class="panel" style="margin-top:16px">' +
+        '<div class="label">How it works</div>' +
+        '<div class="how-row">' +
+          '<div class="how-card"><div class="n">01</div><h3>Open the updates</h3><p>Read what each function reports before you diagnose.</p></div>' +
+          '<div class="how-card"><div class="n">02</div><h3>Make one call</h3><p>Choose your answer and confirm it. You get one attempt per case.</p></div>' +
+          '<div class="how-card"><div class="n">03</div><h3>Read the map</h3><p>See how work moved between functions and where it broke down.</p></div>' +
+        '</div>' +
+        '<div class="bar-actions" style="margin-top:18px"><span class="hint">3 cases &middot; about 10 minutes &middot; ungraded</span>' +
+        '<button class="btn btn-go" id="startBtn" type="button">Open Case 1 ' + ic("arrow") + '</button></div>' +
+      '</section>';
+    document.getElementById("startBtn").addEventListener("click", function () { go(1); });
+  }
+
+  /* ================= Case ================= */
+  function renderCase() {
+    var ci = S.view - 1, C = CASES[ci];
+    var total = C.updates.length;
+
+    var updates = C.updates.map(function (u, i) {
+      var f = FN[u.fn];
+      var kv = u.kv.map(function (p) { return '<span class="kv">' + p[0] + ': <b>' + p[1] + '</b></span>'; }).join("");
+      return '<div class="upd" data-open="false" data-seen="false" style="' + vars(u.fn) + '">' +
+        '<button class="upd-btn" type="button" aria-expanded="false" aria-controls="ub' + i + '" data-u="' + i + '">' +
+          '<span class="fi" style="background:' + f.c + '">' + ic(f.icon) + '</span>' +
+          '<span><span class="fname">' + f.name + '</span><span class="seen">Read</span><span class="fstate">' + u.state + '</span></span>' +
+          '<span class="chev">' + ic("chevron") + '</span>' +
+        '</button>' +
+        '<div class="upd-body" id="ub' + i + '"><p>' + u.msg + '</p><div class="chips">' + kv + '</div></div>' +
+      '</div>';
+    }).join("");
+
+    var isPlan = ci === 2;
+    var options = C.options.map(function (o, i) {
+      var body;
+      if (isPlan) {
+        body = '<h4>Plan ' + "ABC".charAt(i) + ': ' + o.title + '</h4><ol class="steps-list">' + o.steps.map(function (s, k) {
+          return '<li><span class="sn">' + (k + 1) + '</span><span>' + s.f.map(chip).join("") + ' ' + s.t + '</span></li>';
+        }).join("") + '</ol>';
+      } else {
+        body = '<h4>' + o.title + '</h4><p>' + o.text + '</p>';
+      }
+      return '<button type="button" class="ch" role="radio" aria-checked="false" data-i="' + i + '" tabindex="' + (i === 0 ? 0 : -1) + '">' +
+        '<span class="flag">' + (o.correct ? "Effective" : "Your call") + '</span>' +
+        '<span class="stub" aria-hidden="true">' + "ABC".charAt(i) + '</span>' +
+        '<span class="cbody">' + body + '</span>' +
+        '<span class="tick" aria-hidden="true">' + ic("check") + '</span>' +
+      '</button>';
+    }).join("");
+
+    app.innerHTML =
+      '<div class="case-grid">' +
+        '<aside class="case-file">' +
+          '<section class="band band-teal case-band">' +
+            '<span class="tag">Case ' + (ci + 1) + ' of 3</span>' +
+            '<h2 tabindex="-1" id="screenTitle">' + C.title + '</h2>' +
+            '<div class="objective"><span class="oi">' + ic("flag") + '</span><div><small>Shared objective</small><b>' + C.objective + '</b></div></div>' +
+          '</section>' +
+          '<section class="panel" style="padding:18px">' +
+            '<div class="label">Situation update</div>' +
+            '<p class="situation">' + C.situation + '</p>' +
+          '</section>' +
+          '<section class="panel" style="padding:18px">' +
+            '<div class="label">Case stage</div>' +
+            '<div class="phases" id="phases"><span class="phase on">Inspect</span><span class="phase">Diagnose</span><span class="phase">Debrief</span></div>' +
+            '<div class="label" style="margin-top:16px">Ask yourself</div>' +
+            '<ol class="mini-q"><li>What is the shared business objective?</li><li>Which functions need to contribute?</li><li>What does each function need from the others?</li><li>Where could a delayed or poor handoff affect the result?</li></ol>' +
+          '</section>' +
+        '</aside>' +
+        '<div class="stack">' +
+          '<section class="panel">' +
+            '<div class="board-head"><h3>Function updates</h3><span class="count" id="count" aria-live="polite">0 of ' + total + ' opened</span></div>' +
+            '<div class="board">' + updates + '</div>' +
+          '</section>' +
+          '<section class="panel" id="diag">' +
+            '<p class="qtitle" id="qText">' + C.question + '</p>' +
+            '<p class="qsub">' + C.sub + '</p>' +
+            '<div class="lockmsg" id="lockmsg">' + ic("lock") + '<span>Open every function update to unlock your diagnosis.</span></div>' +
+            '<div class="choices disabled" id="choices" role="radiogroup" aria-labelledby="qText" aria-disabled="true">' + options + '</div>' +
+            '<div class="bar-actions" style="margin-top:16px"><span class="hint" id="hint">One attempt only. Your answer is recorded when you confirm.</span>' +
+            '<button class="btn btn-go" id="confirmBtn" type="button" disabled>Confirm ' + (isPlan ? "plan" : "diagnosis") + ' ' + ic("check") + '</button></div>' +
+          '</section>' +
+        '</div>' +
+      '</div>' +
+      '<div id="debriefSlot"></div>';
+
+    Array.prototype.forEach.call(app.querySelectorAll(".upd-btn"), function (btn) {
+      btn.addEventListener("click", function () { toggleUpdate(btn); });
+    });
+    var chs = app.querySelectorAll(".ch");
+    Array.prototype.forEach.call(chs, function (b, idx) {
+      b.addEventListener("click", function () { pick(idx); });
+      b.addEventListener("keydown", function (e) {
+        var k = e.key, nx = null;
+        if (k === "ArrowDown" || k === "ArrowRight") nx = (idx + 1) % chs.length;
+        if (k === "ArrowUp" || k === "ArrowLeft") nx = (idx - 1 + chs.length) % chs.length;
+        if (nx !== null && !S.locked) { e.preventDefault(); pick(nx); chs[nx].focus(); }
+      });
+    });
+    document.getElementById("confirmBtn").addEventListener("click", confirmAnswer);
+  }
+
+  function toggleUpdate(btn) {
+    var card = btn.parentNode;
+    var open = card.getAttribute("data-open") === "true";
+    card.setAttribute("data-open", open ? "false" : "true");
+    btn.setAttribute("aria-expanded", open ? "false" : "true");
+    if (!open) {
+      card.setAttribute("data-seen", "true");
+      S.opened[btn.getAttribute("data-u")] = true;
+    }
+    var total = CASES[S.view - 1].updates.length;
+    var n = Object.keys(S.opened).length;
+    document.getElementById("count").textContent = n + " of " + total + " opened";
+    if (n >= total) unlock();
+  }
+
+  function unlock() {
+    var c = document.getElementById("choices");
+    if (!c.classList.contains("disabled")) return;
+    c.classList.remove("disabled");
+    c.removeAttribute("aria-disabled");
+    var lm = document.getElementById("lockmsg");
+    if (lm) lm.parentNode.removeChild(lm);
+    setPhase(1);
+    announce("All updates opened. Your diagnosis is unlocked.");
+  }
+
+  function setPhase(p) {
+    var ph = document.getElementById("phases");
+    if (!ph) return;
+    Array.prototype.forEach.call(ph.children, function (el, i) {
+      el.className = "phase" + (i < p ? " ok" : (i === p ? " on" : ""));
+    });
+  }
+
+  function pick(i) {
+    if (S.locked) return;
+    var c = document.getElementById("choices");
+    if (c.classList.contains("disabled")) return;
+    S.selected = i;
+    Array.prototype.forEach.call(app.querySelectorAll(".ch"), function (b, j) {
+      b.setAttribute("aria-checked", j === i ? "true" : "false");
+      b.setAttribute("tabindex", j === i ? "0" : "-1");
+    });
+    document.getElementById("confirmBtn").disabled = false;
+  }
+
+  function confirmAnswer() {
+    if (S.locked || S.selected === null) return;
+    var ci = S.view - 1, C = CASES[ci], o = C.options[S.selected];
+    S.locked = true;
+    S.answers[ci] = S.selected;
+    var pts = C.score(S.selected);
+    S.skills.fid += pts.fid; S.skills.hand += pts.hand; S.skills.dep += pts.dep;
+
+    var wrap = document.getElementById("choices");
+    wrap.classList.add("locked");
+    Array.prototype.forEach.call(wrap.querySelectorAll(".ch"), function (b, j) {
+      b.disabled = true;
+      if (j === S.selected) b.classList.add("picked");
+      if (C.options[j].correct) b.classList.add("right");
+    });
+    var cb = document.getElementById("confirmBtn");
+    cb.parentNode.removeChild(cb);
+    document.getElementById("hint").textContent = o.correct ? "Recorded as an effective answer." : "Recorded as incorrect. The story continues.";
+    setPhase(2);
+
+    var bestIdx = 0;
+    C.options.forEach(function (x, j) { if (x.correct) bestIdx = j; });
+    var isPlan = ci === 2;
+    var bestName = (isPlan ? "Plan " : "Option ") + "ABC".charAt(bestIdx) + ": " + C.options[bestIdx].title;
+
+    var trio = "";
+    if (C.trio && C.trio.kind === "handoff") {
+      trio = '<div class="trio">' +
+        '<div class="tb tb-input"><div class="th"><span>' + ic("input") + '</span>Input</div><p>' + C.trio.a + '</p></div>' +
+        '<div class="joint" aria-hidden="true">' + ic("arrow") + '</div>' +
+        '<div class="tb tb-hand"><div class="th"><span>' + ic("handoff") + '</span>Handoff</div><p>' + C.trio.b + '</p></div>' +
+        '<div class="joint" aria-hidden="true">' + ic("arrow") + '</div>' +
+        '<div class="tb tb-impact"><div class="th"><span>' + ic("impact") + '</span>Impact</div><p>' + C.trio.c + '</p></div>' +
+      '</div>';
+    } else if (C.trio && C.trio.kind === "dependency") {
+      trio = '<div class="trio">' +
+        '<div class="tb tb-dep"><div class="th"><span>' + ic("chain") + '</span>Dependency</div><p>' + C.trio.a + '</p></div>' +
+        '<div class="joint" aria-hidden="true">' + ic("arrow") + '</div>' +
+        '<div class="tb tb-conn"><div class="th"><span>' + ic("nodes") + '</span>Functions connected</div><div class="conn-chips">' + C.trio.b.map(chip).join("") + '</div><p style="margin-top:8px;font-size:13.5px">Each one waits on the function before it.</p></div>' +
+        '<div class="joint" aria-hidden="true">' + ic("arrow") + '</div>' +
+        '<div class="tb tb-effect"><div class="th"><span>' + ic("pulse") + '</span>Business effect</div><p>' + C.trio.c + '</p></div>' +
+      '</div>';
+    }
+
+    var mapHead = isPlan
+      ? '<div class="map-head"><h3>How work moves across functions</h3><div class="tabs" role="tablist" aria-label="Choose a map view">' +
+          '<button class="tab" role="tab" type="button" id="tabMine" aria-selected="true" aria-controls="mapHost">Your plan</button>' +
+          (o.correct ? "" : '<button class="tab" role="tab" type="button" id="tabBest" aria-selected="false" aria-controls="mapHost" tabindex="-1">Effective plan</button>') +
+        '</div></div>'
+      : '<div class="map-head"><h3>Function map</h3><span class="hint">Where the ' + (ci === 0 ? "handoff" : "dependency") + ' broke down</span></div>';
+
+    var nextLabel = ci < 2 ? "Open Case " + (ci + 2) : "See your analysis";
+
+    var html =
+      '<div class="debrief stack" style="margin-top:16px">' +
+        '<section class="band verdict ' + (o.correct ? "v-good" : "v-bad") + '">' +
+          '<span class="vi">' + ic(o.correct ? "check" : "cross") + '</span>' +
+          '<div><small>' + (o.correct ? (isPlan ? "Effective response" : "Effective diagnosis") : "Recorded as incorrect") + '</small><h3 tabindex="-1" id="debriefTitle">' +
+            C.verdicts[o.correct ? 0 : 1] +
+          '</h3></div>' +
+        '</section>' +
+        '<section class="panel">' +
+          '<div class="label">What happened</div>' +
+          '<p class="explain">' + o.fb + '</p>' +
+          (o.correct ? "" : '<div class="better">The most effective answer was <b>' + bestName + '</b>. ' + C.options[bestIdx].fb + '</div>') +
+        '</section>' +
+        (trio ? '<section class="panel">' + trio + '</section>' : '') +
+        '<section class="panel">' + mapHead + '<div id="mapHost" role="tabpanel"></div>' +
+          '<div class="bar-actions" style="margin-top:18px"><span class="hint">Your answer has been recorded.</span>' +
+          '<button class="btn btn-teal" id="nextBtn" type="button">' + nextLabel + ' ' + ic("arrow") + '</button></div>' +
+        '</section>' +
+      '</div>';
+
+    var slot = document.getElementById("debriefSlot");
+    slot.innerHTML = html;
+    var host = document.getElementById("mapHost");
+    if (isPlan) {
+      buildMap(host, C.maps["p" + S.selected]);
+      var tm = document.getElementById("tabMine"), tb = document.getElementById("tabBest");
+      if (tb) {
+        var setTab = function (mine) {
+          tm.setAttribute("aria-selected", mine ? "true" : "false");
+          tb.setAttribute("aria-selected", mine ? "false" : "true");
+          tm.setAttribute("tabindex", mine ? "0" : "-1");
+          tb.setAttribute("tabindex", mine ? "-1" : "0");
+          clearObservers();
+          buildMap(host, C.maps["p" + (mine ? S.selected : bestIdx)]);
+        };
+        tm.addEventListener("click", function () { setTab(true); });
+        tb.addEventListener("click", function () { setTab(false); });
+        [tm, tb].forEach(function (t) {
+          t.addEventListener("keydown", function (e) {
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+              e.preventDefault();
+              var toMine = t === tb;
+              setTab(toMine);
+              (toMine ? tm : tb).focus();
+            }
+          });
+        });
+      }
+    } else {
+      buildMap(host, C.maps.actual);
+    }
+    document.getElementById("nextBtn").addEventListener("click", function () { go(S.view + 1); });
+    var t = document.getElementById("debriefTitle");
+    try { slot.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { slot.scrollIntoView(); }
+    try { t.focus({ preventScroll: true }); } catch (e2) { t.focus(); }
+    announce(o.correct ? "Effective answer recorded." : "Answer recorded as incorrect.");
+  }
+
+  /* ================= Results ================= */
+  function level(v) { return ["Emerging", "Developing", "Proficient", "Strong"][Math.max(0, Math.min(3, v))]; }
+
+  function renderResults() {
+    var effective = 0;
+    S.answers.forEach(function (a, i) { if (a !== null && CASES[i].options[a].correct) effective++; });
+
+    var SK = [
+      { k: "fid", name: "Function Identification", icon: "lens", c: "#134f5c", note: "Recognizing which functions need to contribute." },
+      { k: "hand", name: "Handoff Analysis", icon: "route", c: "#e4472b", note: "Spotting late, incomplete, inaccurate, or unclear handoffs." },
+      { k: "dep", name: "Dependency Analysis", icon: "chain", c: "#741b47", note: "Seeing what must happen first before others can act." }
+    ];
+    var skills = SK.map(function (s) {
+      var v = Math.max(0, Math.min(3, S.skills[s.k]));
+      var pips = "";
+      for (var i = 0; i < 3; i++) pips += '<span class="pip" style="' + (i < v ? "background:" + s.c : "") + '"></span>';
+      return '<div class="skill"><div class="sk-top"><span class="sk-ic" style="background:' + s.c + '">' + ic(s.icon) + '</span><h3>' + s.name + '</h3></div>' +
+        '<div class="pips" role="meter" aria-label="' + s.name + '" aria-valuemin="0" aria-valuemax="3" aria-valuenow="' + v + '" aria-valuetext="' + level(v) + '">' + pips + '</div>' +
+        '<div class="lvl"><span style="color:' + s.c + '">' + level(v) + '</span><span>' + v + ' of 3</span></div>' +
+        '<p style="font-size:13.5px;color:var(--ink-2);margin-top:8px">' + s.note + '</p></div>';
+    }).join("");
+
+    var recap = S.answers.map(function (a, i) {
+      var C = CASES[i], o = C.options[a];
+      var label = (i === 2 ? "Plan " : "Option ") + "ABC".charAt(a) + ": " + o.title;
+      return '<div class="rc"><span class="rn">' + (i + 1) + '</span><span class="rt">' + C.title + '<small>' + label + '</small></span>' +
+        '<span class="rs ' + (o.correct ? "y" : "n") + '">' + (o.correct ? "Effective" : "Recorded as incorrect") + '</span></div>';
+    }).join("");
+
+    app.innerHTML =
+      '<section class="band band-sunset hero">' +
+        '<div class="eyebrow">Nimbo &middot; Case files closed</div>' +
+        '<h1 tabindex="-1" id="screenTitle">Cross-Functional Analysis</h1>' +
+        '<p class="lead">Here is how your decisions across the three cases reflect each analysis skill.</p>' +
+        '<span class="score-line">' + ic("target") + effective + ' of 3 effective answers</span>' +
+      '</section>' +
+      '<div class="skills" style="margin-top:16px">' + skills + '</div>' +
+      '<section class="panel" style="margin-top:16px"><div class="label">Your case decisions</div><div class="recap">' + recap + '</div></section>' +
+      '<section class="panel" style="margin-top:16px"><div class="label">Principles to keep</div><div class="principles">' +
+        '<div class="pr pr1"><div class="pn">1</div><p>Business objectives often require contributions from several functions.</p></div>' +
+        '<div class="pr pr2"><div class="pn">2</div><p>Effective coordination depends on accurate and timely inputs and handoffs.</p></div>' +
+        '<div class="pr pr3"><div class="pn">3</div><p>A business problem can occur between functions, not only within one function.</p></div>' +
+      '</div>' +
+      '<div class="bar-actions" style="margin-top:20px"><span class="hint">Replay the cases to test different answers.</span>' +
+      '<button class="btn btn-line" id="againBtn" type="button">' + ic("replay") + ' Try Again</button></div></section>';
+    document.getElementById("againBtn").addEventListener("click", function () { reset(); go(0); });
+  }
+
+  /* ================= Navigation ================= */
+  function go(v) {
+    clearObservers();
+    S.view = v;
+    S.opened = {};
+    S.selected = null;
+    S.locked = false;
+    renderRail();
+    if (v === 0) renderIntro();
+    else if (v === 4) renderResults();
+    else renderCase();
+    try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { window.scrollTo(0, 0); }
+    var t = document.getElementById("screenTitle");
+    if (t && v !== 0) { try { t.focus({ preventScroll: true }); } catch (e2) { t.focus(); } }
+  }
+
+  reset();
+  go(0);
+})();
+</script>
+</body>
+</html>
